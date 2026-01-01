@@ -78,8 +78,7 @@ function connectWs() {
   wsStatus.value = 'connecting';
   try {
     const host = location.hostname || 'localhost';
-    const port = import.meta.env.VITE_WS_PORT ? Number(import.meta.env.VITE_WS_PORT) : 8787;
-    const url = (location.protocol === 'https:' ? 'wss://' : 'ws://') + host + ':' + port;
+    const url = (location.protocol === 'https:' ? 'wss://' : 'ws://') + host + '/ws/';
     const ws = new WebSocket(url);
     wsRef.value = ws;
 
@@ -372,13 +371,7 @@ onBeforeUnmount(() => {
             <div class="pill">{{ activeChannel }}</div>
             <div class="hint">Frosted Glass Theme By kyroslee</div>
           </div>
-          <div class="right">
-            <a class="iconBtn" title="Nectmania" href="https://nectmania.lazurite.icu/" target="_blank" rel="noopener noreferrer">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2 21l21-9L2 3v7l14 2-14 2v7z" />
-              </svg>
-            </a>
-          </div>
+          <div class="right"></div>
         </header>
 
         <section class="messages" ref="listRef">
@@ -694,24 +687,6 @@ body{ font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, He
 }
 
 .right{ display: flex; gap: 8px; }
-.iconBtn{
-  padding: 8px 10px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,.14);
-  background: rgba(255,255,255,.06);
-  color: var(--text);
-  cursor: pointer;
-}
-.iconBtn:hover{ background: rgba(255,255,255,.10); }
-
-/* Monochrome SVG icon sizing */
-.iconBtn svg{
-  width: 18px;
-  height: 18px;
-  display: inline-block;
-  vertical-align: middle;
-  fill: currentColor;
-}
 
 .wsStatus{ display:inline-flex; align-items:center; padding:6px 8px; color:var(--muted); font-size:12px; }
 .composer .speaker{ width: 120px; min-width: 100px; max-width: 180px; padding:10px; height:44px; box-sizing:border-box; border-radius:8px; border:1px solid rgba(255,255,255,.08); background: rgba(0,0,0,.12); color:var(--text); font-size:15px; }
