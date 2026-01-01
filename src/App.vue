@@ -285,10 +285,10 @@ const formatTime = (ts?: number) => {
 
 const imageUrlRegex = /^(https?:\/\/[^\s]+?\.(?:jpg|jpeg|png|gif|webp|bmp|svg))(?:\?.*)?$/i;
 
-function getImageUrl(text: string) {
+function getImageUrl(text: string): string | undefined {
   const raw = text.trim().replace(/^['"]|['"]$/g, "");
-  if (!raw) return null;
-  return imageUrlRegex.test(raw) ? raw : null;
+  if (!raw) return undefined;
+  return imageUrlRegex.test(raw) ? raw : undefined;
 }
 
 function onKeydown(e: KeyboardEvent) {

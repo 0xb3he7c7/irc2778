@@ -25,3 +25,6 @@ dist-ssr
 
 # local temp files
 .tmp/
+
+# Vite cache
+.vite/
