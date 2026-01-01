@@ -1,12 +1,15 @@
-# Nectmania's IRC (Vue + WS + MySQL)
+# Chatmania  (Vue + WS + MySQL)
 
-Frosted glass UI built with Vue 3 + Vite and a WebSocket server that persists messages to MySQL.
+Chatmania is a real-time chat webpage built with Vue, WebSocket, and MySQL, offering multi-channel sync with persisted history.
 
 ## Features
 - WebSocket chat with channel switching
 - Message history loaded from MySQL
 - Optional image URL rendering (message is a single image URL)
 - Responsive layout
+
+## Preview
+<img src="http://157.254.51.10/088d8c9eca5248386205475e1757c580.png">
 
 ## Requirements
 - Node.js 18+ (recommended)
