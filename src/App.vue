@@ -45,6 +45,8 @@ const input = ref("");
 const speaker = ref<string>('');
 const latency = ref<number | null>(null);
 const localIp = ref<string | null>(null);
+const ipInfo = ref<{ countryCode?: string; risky?: boolean } | null>(null);
+const ipInfoCache = new Map<string, { countryCode?: string; risky?: boolean }>();
 let pingTimer: number | null = null;
 const listRef = ref<HTMLElement | null>(null);
 
@@ -303,12 +305,53 @@ function onSpeakerInput() {
   speaker.value = speaker.value.replace(/[^A-Za-z0-9]/g, '');
 }
 
+async function loadIpInfo(ip: string) {
+  const key = ip.trim();
+  if (!key) return;
+  const cached = ipInfoCache.get(key);
+  if (cached) {
+    ipInfo.value = cached;
+    return;
+  }
+  try {
+    const res = await fetch(`https://api.ipapi.is/?q=${encodeURIComponent(key)}`);
+    if (!res.ok) throw new Error(`ipapi ${res.status}`);
+    const data = await res.json();
+    const flags = Boolean(
+      data?.is_datacenter
+      || data?.is_tor
+      || data?.is_proxy
+      || data?.is_vpn
+      || data?.is_abuser
+    );
+    const asnType = (data?.asn?.type ?? '').toString().toLowerCase();
+    const risky = flags || (asnType && asnType !== 'isp');
+    const info = {
+      countryCode: data?.location?.country_code?.toString() || undefined,
+      risky,
+    };
+    ipInfoCache.set(key, info);
+    ipInfo.value = info;
+  } catch (err) {
+    console.warn('ip info fetch failed', err);
+    ipInfo.value = null;
+  }
+}
+
 // scroll to bottom when switching channels
 watch(activeChannel, async () => {
   // request history for the newly active channel to ensure we have recent messages
   try { requestHistory(activeChannel.value, 200); } catch (e) { /* ignore */ }
   await nextTick();
   scrollToBottom();
+});
+
+watch(localIp, (ip) => {
+  if (ip && ip !== 'Guest') {
+    void loadIpInfo(ip);
+  } else {
+    ipInfo.value = null;
+  }
 });
 
 onMounted(() => {
@@ -356,7 +399,13 @@ onBeforeUnmount(() => {
               <img class="avatarImg" src="/avatar.jpg" alt="" />
             </div>
             <div class="meta">
-              <div class="who">{{ localIp ?? 'Guest' }}</div>
+              <div class="who">
+                {{ localIp ?? 'Guest' }}
+                <span class="ipMeta" v-if="ipInfo?.countryCode">
+                  {{ ipInfo.countryCode }}
+                </span>
+                <span class="ipAlert" v-if="ipInfo?.risky">此用户使用了VPN</span>
+              </div>
               <div class="status" v-if="wsStatus !== 'connected'">{{ wsStatus }}</div>
               <div class="status" v-else>connected<span v-if="latency !== null"> ({{ latency }} ms)</span></div>
             </div>
@@ -649,6 +698,16 @@ body{ font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, He
 
 .meta .who{ font-weight: 600; font-size: 14px; }
 .meta .status{ font-size: 12px; color: var(--muted); margin-top: 2px; }
+.ipMeta{
+  margin-left: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.ipAlert{
+  margin-left: 6px;
+  font-size: 12px;
+  color: #f4c542;
+}
 
 /* Main */
 .main{

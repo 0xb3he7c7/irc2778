@@ -43,7 +43,11 @@ function startServer(port, maxRetries = 5) {
     console.log(`ws-server starting on port ${port}`);
 
     wss.on('connection', (ws, req) => {
-      const addr = req.socket.remoteAddress;
+      const forwarded = req.headers['x-forwarded-for'];
+      const realIp = req.headers['x-real-ip'];
+      const addr = (typeof forwarded === 'string' ? forwarded.split(',')[0]?.trim() : undefined)
+        || (typeof realIp === 'string' ? realIp.trim() : undefined)
+        || req.socket.remoteAddress;
       console.log(`client connected: ${addr}`);
 
       const welcome = { type: 'sys', text: 'ws connected', ts: Date.now(), ip: addr };
