@@ -306,8 +306,19 @@ function onSpeakerInput() {
   speaker.value = speaker.value.replace(/[^A-Za-z0-9]/g, '');
 }
 
+function normalizeIp(ip: string) {
+  const raw = ip.trim();
+  if (raw.startsWith('::ffff:')) return raw.slice(7);
+  return raw;
+}
+
+function getIpInfo(ip?: string) {
+  if (!ip) return undefined;
+  return ipInfoByIp.value[normalizeIp(ip)];
+}
+
 async function loadIpInfoForMessage(ip: string) {
-  const key = ip.trim();
+  const key = normalizeIp(ip);
   if (!key || ipInfoByIp.value[key] || ipInfoLoading.has(key)) return;
   const cached = ipInfoCache.get(key);
   if (cached) {
@@ -437,10 +448,10 @@ onBeforeUnmount(() => {
                 <div class="ts">{{ formatTime(m.ts) }}</div>
                 <div class="ip" v-if="m.ip">
                   {{ m.ip }}
-                  <span class="ipMeta" v-if="ipInfoByIp[m.ip]?.countryCode">
-                    {{ ipInfoByIp[m.ip]?.countryCode }}
+                  <span class="ipMeta" v-if="getIpInfo(m.ip)?.countryCode">
+                    {{ getIpInfo(m.ip)?.countryCode }}
                   </span>
-                  <span class="ipAlert" v-if="ipInfoByIp[m.ip]?.risky">🛡️!</span>
+                  <span class="ipAlert" v-if="getIpInfo(m.ip)?.risky">🛡️!</span>
                 </div>
               </div>
             </div>
