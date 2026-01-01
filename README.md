@@ -1,6 +1,6 @@
-# Nectmania IRC (Vue + WS + MySQL)
+# Nectmania's IRC (Vue + WS + MySQL)
 
-Chat UI built with Vue 3 + Vite and a WebSocket server that persists messages to MySQL.
+Frosted glass UI built with Vue 3 + Vite and a WebSocket server that persists messages to MySQL.
 
 ## Features
 - WebSocket chat with channel switching
